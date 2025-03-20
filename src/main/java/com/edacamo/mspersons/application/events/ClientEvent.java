@@ -1,4 +1,4 @@
-package com.edacamo.mspersons.application.event;
+package com.edacamo.mspersons.application.events;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,12 +1,10 @@
 package com.edacamo.mspersons.application.services;
 
-import com.edacamo.mspersons.application.event.ClientEvent;
 import com.edacamo.mspersons.domain.entities.Client;
 import com.edacamo.mspersons.domain.repositories.ClientRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

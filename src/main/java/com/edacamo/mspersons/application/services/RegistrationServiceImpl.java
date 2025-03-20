@@ -1,6 +1,6 @@
 package com.edacamo.mspersons.application.services;
 
-import com.edacamo.mspersons.application.event.ClientEvent;
+import com.edacamo.mspersons.application.events.ClientEvent;
 import com.edacamo.mspersons.domain.entities.Client;
 import com.edacamo.mspersons.domain.repositories.ClientRepository;
 import com.edacamo.mspersons.interfaces.dto.RegisterRequest;
@@ -16,12 +16,15 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     final private ClientRepository clientRepository;
     private final PasswordEncoder passwordEncoder;
-    private final KafkaTemplate<String, ClientEvent> kafkaTemplate;
+    private final PublishClientCreatedEvent publishClientCreatedEvent;
 
-    public RegistrationServiceImpl(ClientRepository clientRepository, PasswordEncoder passwordEncoder, KafkaTemplate<String, ClientEvent> kafkaTemplate) {
+    public RegistrationServiceImpl(ClientRepository clientRepository,
+                                   PasswordEncoder passwordEncoder,
+                                   KafkaTemplate<String, ClientEvent> kafkaTemplate,
+                                   PublishClientCreatedEvent publishClientCreatedEvent) {
         this.clientRepository = clientRepository;
         this.passwordEncoder = passwordEncoder;
-        this.kafkaTemplate = kafkaTemplate;
+        this.publishClientCreatedEvent = publishClientCreatedEvent;
     }
 
     public RegisterResponse registerUser(RegisterRequest request) {
@@ -43,24 +46,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         cliente.setTelefono(request.getTelefono());
 
         clientRepository.save(cliente);
-        this.publishClientCreated(cliente); //Produce el mensaje Kafka
+        this.publishClientCreatedEvent.publishClientCreated(cliente);//Produce el mensaje Kafka
         return new RegisterResponse("Usuario registrado correctamente");
-    }
-
-    // Método para publicar el evento al crear el cliente
-    public void publishClientCreated(Client client) {
-        ClientEvent event = new ClientEvent(
-                client.getClienteId(),
-                client.getNombre(),
-                client.getGenero(),
-                client.getEdad(),
-                client.getIdentificacion(),
-                client.getDireccion(),
-                client.getTelefono(),
-                client.getEstado()
-        );
-        
-        log.info("Publicando evento de cliente creado: {}", event);
-        kafkaTemplate.send("client-events", event.getClienteId(), event);
     }
 }
