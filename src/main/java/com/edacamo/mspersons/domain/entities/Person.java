@@ -20,6 +20,11 @@ public class Person {
 
     private String nombre;
 
+    @Column(
+            name = "genero",
+            nullable = false,
+            length = 1
+    )
     private String genero;
 
     private int edad;

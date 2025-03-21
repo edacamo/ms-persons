@@ -32,12 +32,13 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Client> findById(Long id) {
-        return repository.findById(id);
+    public Optional<Client> findByClienteId(String clienteId) {
+        return Optional.ofNullable(repository.findByClienteId(clienteId));
     }
 
     @Override
     public void deleteById(Long id) {
-    repository.deleteById(id);
+
+        repository.deleteById(id);
     }
 }

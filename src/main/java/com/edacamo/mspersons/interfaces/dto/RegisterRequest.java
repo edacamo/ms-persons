@@ -14,4 +14,5 @@ public class RegisterRequest {
     private String identificacion;
     private String direccion;
     private String telefono;
+    private Boolean estado;
 }

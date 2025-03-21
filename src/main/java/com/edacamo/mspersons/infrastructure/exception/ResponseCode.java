@@ -14,7 +14,8 @@ public enum ResponseCode {
     // Códigos de éxito
     SUCCESS("SUCCESS_001", "Operación realizada con éxito"),
     DATA_CREATED("DATA_CREATED_002", "Datos creados correctamente"),
-    DATA_UPDATED("DATA_UPDATED_003", "Datos actualizados correctamente");
+    DATA_UPDATED("DATA_UPDATED_003", "Datos actualizados correctamente"),
+    DATA_DELETE("DATA_DELETE_004", "Datos eliminados correctamente"),;
 
     private final String code;
     private final String description;

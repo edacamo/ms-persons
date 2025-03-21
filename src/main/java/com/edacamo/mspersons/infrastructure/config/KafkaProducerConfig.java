@@ -1,5 +1,6 @@
 package com.edacamo.mspersons.infrastructure.config;
 
+import com.edacamo.mspersons.application.events.ClientDeletedEvent;
 import com.edacamo.mspersons.application.events.ClientEvent;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -19,7 +20,7 @@ public class KafkaProducerConfig {
     private final String bootstrapAddress = "localhost:9092";
 
     @Bean
-    public ProducerFactory<String, ClientEvent> producerFactory() {
+    public <T> ProducerFactory<String, T> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -27,8 +28,20 @@ public class KafkaProducerConfig {
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 
+//    @Bean
+//    public <T> KafkaTemplate<String, T> kafkaTemplate(ProducerFactory<String, T> producerFactory) {
+//        return new KafkaTemplate<>(producerFactory);
+//    }
+
+    // KafkaTemplate para ClientEvent
     @Bean
-    public KafkaTemplate<String, ClientEvent> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
+    public KafkaTemplate<String, ClientEvent> clientEventKafkaTemplate(ProducerFactory<String, ClientEvent> producerFactory) {
+        return new KafkaTemplate<>(producerFactory);
+    }
+
+    // KafkaTemplate para ClientDeletedEvent
+    @Bean
+    public KafkaTemplate<String, ClientDeletedEvent> clientDeletedEventKafkaTemplate(ProducerFactory<String, ClientDeletedEvent> producerFactory) {
+        return new KafkaTemplate<>(producerFactory);
     }
 }

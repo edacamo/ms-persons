@@ -1,6 +1,7 @@
 package com.edacamo.mspersons.interfaces.controllers;
 
 import com.edacamo.mspersons.application.services.RegistrationService;
+import com.edacamo.mspersons.interfaces.dto.GetClientByIdRequest;
 import com.edacamo.mspersons.interfaces.dto.RegisterRequest;
 import com.edacamo.mspersons.interfaces.dto.RegisterResponse;
 import com.edacamo.mspersons.interfaces.dto.ResponseGeneric;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -40,10 +42,10 @@ public class ClientController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ResponseGeneric<Client>> findById(@PathVariable Long id) {
-        log.info("Obteniendo el cliente con id {}", id);
-        return this.service.findById(id)
+    @PostMapping("/id")
+    public ResponseEntity<ResponseGeneric<Client>> findById(@RequestBody GetClientByIdRequest request) {
+        log.info("Obteniendo el cliente con id {}", request.getClienteId());
+        return this.service.findByClienteId(request.getClienteId())
                 .map(client -> {
                     ResponseGeneric<Client> response = ResponseGeneric.success(
                             HttpStatus.OK.value(),
@@ -52,7 +54,7 @@ public class ClientController {
                     );
                     return ResponseEntity.ok(response);
                 })
-                .orElseThrow(() -> new EmptyResultDataAccessException("Cliente con ID " + id + " no encontrado", 1));
+                .orElseThrow(() -> new EmptyResultDataAccessException("Cliente con ID " + request.getClienteId() + " no encontrado", 1));
     }
 
     @PostMapping("/register")
@@ -79,5 +81,45 @@ public class ClientController {
            log.error("Cliente nulo recibido");
            throw new IllegalArgumentException("Los datos del cliente no puede ser nulo");
        }
+    }
+
+    @PutMapping("/actualizar")
+    public ResponseEntity<ResponseGeneric<RegisterResponse>> update(@RequestBody RegisterRequest request) {
+
+        if(request != null) {
+            try{
+                RegisterResponse register = this.registrationService.updateUser(request);
+                ResponseGeneric<RegisterResponse> response = ResponseGeneric.success(
+                        HttpStatus.OK.value(),
+                        ResponseCode.DATA_UPDATED,
+                        register
+                );
+
+                return ResponseEntity.ok(response);
+
+            } catch (Exception ex) {
+                log.error("Error al actualizar el cliente: ", ex);
+                throw new RuntimeException("Error al actualizar el cliente.");
+            }
+        } else {
+            log.error("No se puede actualizar el cliente, por favor intente nuevamente");
+            throw new IllegalArgumentException("Los datos del cliente no puede ser nulo.");
+        }
+    }
+
+    @DeleteMapping("/eliminar/{clienteId}")
+    public ResponseEntity<ResponseGeneric<RegisterResponse>> delete(@PathVariable String clienteId) {
+        try {
+            RegisterResponse responseDelete = this.registrationService.deleteUser(clienteId);
+            ResponseGeneric<RegisterResponse> response = ResponseGeneric.success(
+                    HttpStatus.OK.value(),
+                    ResponseCode.DATA_DELETE,
+                    responseDelete
+            );
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            log.error("Error al eliminar el cliente: ", ex);
+            throw new RuntimeException("Error al eliminar el cliente.");
+        }
     }
 }
